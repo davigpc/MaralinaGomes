@@ -1,11 +1,13 @@
 # render.yaml - Versão Final e Corrigida
 
+# Primeiro, definimos os bancos de dados. Esta secção está correta.
 databases:
   - name: maralina-db
     plan: free
     databaseName: maralinagomes_db
     user: admin
 
+# Em seguida, definimos os serviços da aplicação.
 services:
   # 1. O Backend Spring Boot (API)
   - type: web
@@ -21,13 +23,13 @@ services:
           name: maralina-db
           property: connectionString
 
-  # 2. O Frontend React (Site Estático) - CORRIGIDO
-  - type: static # <-- CORRIGIDO: Voltamos para 'static'
+  # 2. O Frontend React (Site Estático) - Usando o tipo 'static' correto
+  - type: static
     name: maralina-loja
     rootDir: maralinagomes-controle-front
     plan: free
     buildCommand: "npm install && npm run build"
-    publishDir: dist # Agora esta propriedade é válida
-    rewrites: # E esta também
+    publishDir: dist
+    rewrites:
       - source: /api/*
         destination: ${{ maralina-api.url }}/api/*
