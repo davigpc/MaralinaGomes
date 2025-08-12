@@ -1,35 +1,34 @@
-# render.yaml - Versão Corrigida
+# render.yaml - Versão Corrigida 2.0
 
-# Primeiro, definimos os bancos de dados
 databases:
   - name: maralina-db
     plan: free
-    databaseName: maralinagomes_db # Nome específico do banco de dados
-    user: admin                   # Nome de utilizador
+    databaseName: maralinagomes_db
+    user: admin
 
-# Em seguida, definimos os serviços da aplicação
 services:
   # 1. O Backend Spring Boot (API)
   - type: web
     name: maralina-api
     runtime: java
-    rootDir: ControleEstoque   # A pasta do seu backend
+    rootDir: ControleEstoque
     plan: free
     buildCommand: "./mvnw package"
     startCommand: "java -jar target/ControleEstoque-0.0.1-SNAPSHOT.jar"
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
-          name: maralina-db         # Conecta-se ao banco de dados definido acima
+          name: maralina-db
           property: connectionString
 
-  # 2. O Frontend React (Site Estático)
-  - type: static
+  # 2. O Frontend React (Site Estático) - CORRIGIDO
+  - type: web # <-- AQUI ESTÁ A MUDANÇA
     name: maralina-loja
-    rootDir: maralinagomes-controle-front # A pasta do seu frontend
+    runtime: static # <-- E AQUI
+    rootDir: maralinagomes-controle-front
     plan: free
     buildCommand: "npm install && npm run build"
-    publishDir: dist
+    publishDir: dist # Para o Vite, esta é a pasta correta
     rewrites:
       - source: /api/*
-        destination: ${{ maralina-api.url }}/api/* # Redireciona chamadas para a API
+        destination: ${{ maralina-api.url }}/api/*
