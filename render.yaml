@@ -1,12 +1,15 @@
-# render.yaml - Configuração para o projeto MaralinaGomes
+# render.yaml - Versão Corrigida
 
-services:
-  # 1. O Banco de Dados PostgreSQL
-  - type: psql
-    name: maralina-db
+# Primeiro, definimos os bancos de dados
+databases:
+  - name: maralina-db
     plan: free
+    databaseName: maralinagomes_db # Nome específico do banco de dados
+    user: admin                   # Nome de utilizador
 
-  # 2. O Backend Spring Boot (API)
+# Em seguida, definimos os serviços da aplicação
+services:
+  # 1. O Backend Spring Boot (API)
   - type: web
     name: maralina-api
     runtime: java
@@ -17,10 +20,10 @@ services:
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
-          name: maralina-db         # Conecta-se ao banco de dados acima
+          name: maralina-db         # Conecta-se ao banco de dados definido acima
           property: connectionString
 
-  # 3. O Frontend React (Site Estático)
+  # 2. O Frontend React (Site Estático)
   - type: static
     name: maralina-loja
     rootDir: maralinagomes-controle-front # A pasta do seu frontend
