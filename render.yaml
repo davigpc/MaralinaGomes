@@ -1,0 +1,32 @@
+# render.yaml - Configuração para o projeto MaralinaGomes
+
+services:
+  # 1. O Banco de Dados PostgreSQL
+  - type: psql
+    name: maralina-db
+    plan: free
+
+  # 2. O Backend Spring Boot (API)
+  - type: web
+    name: maralina-api
+    runtime: java
+    rootDir: ControleEstoque   # A pasta do seu backend
+    plan: free
+    buildCommand: "./mvnw package"
+    startCommand: "java -jar target/ControleEstoque-0.0.1-SNAPSHOT.jar"
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: maralina-db         # Conecta-se ao banco de dados acima
+          property: connectionString
+
+  # 3. O Frontend React (Site Estático)
+  - type: static
+    name: maralina-loja
+    rootDir: maralinagomes-controle-front # A pasta do seu frontend
+    plan: free
+    buildCommand: "npm install && npm run build"
+    publishDir: dist
+    rewrites:
+      - source: /api/*
+        destination: ${{ maralina-api.url }}/api/* # Redireciona chamadas para a API
