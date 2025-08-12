@@ -16,4 +16,7 @@ public class Produto {
     private String tamanho;
     private double preco;
     private int quantidade;
+
+    @Column(nullable = false)
+    private boolean ativo = true;
 }
