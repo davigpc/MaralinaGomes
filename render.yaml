@@ -1,4 +1,4 @@
-# render.yaml - Versão Corrigida 2.0
+# render.yaml - Versão Final e Corrigida
 
 databases:
   - name: maralina-db
@@ -22,13 +22,12 @@ services:
           property: connectionString
 
   # 2. O Frontend React (Site Estático) - CORRIGIDO
-  - type: web # <-- AQUI ESTÁ A MUDANÇA
+  - type: static # <-- CORRIGIDO: Voltamos para 'static'
     name: maralina-loja
-    runtime: static # <-- E AQUI
     rootDir: maralinagomes-controle-front
     plan: free
     buildCommand: "npm install && npm run build"
-    publishDir: dist # Para o Vite, esta é a pasta correta
-    rewrites:
+    publishDir: dist # Agora esta propriedade é válida
+    rewrites: # E esta também
       - source: /api/*
         destination: ${{ maralina-api.url }}/api/*
