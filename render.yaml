@@ -1,4 +1,4 @@
-# render.yaml - Versão ajustada à documentação oficial
+# render.yaml - Versão Simplificada e Válida
 
 services:
   # Serviço 1: Backend Spring Boot (API)
@@ -25,23 +25,19 @@ services:
           property: password
       - key: ALLOWED_ORIGIN
         fromService:
-          type: web # O tipo do serviço de frontend
-          name: maralina-loja # O nome do serviço de frontend
-          property: url # A propriedade que queremos (o seu URL)
+          type: web
+          name: maralina-loja
+          property: url
 
   # Serviço 2: Frontend React (Site Estático)
-  - type: web                 # Conforme a documentação
+  - type: web
     name: maralina-loja
-    runtime: static           # Conforme a documentação
+    runtime: static
     plan: free
     rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist
-    # CORREÇÃO: A propriedade 'rewrites' está agora dentro da secção 'http'
-    http:
-      rewrites:
-        - source: /api/:path*
-          destination: ${{services.maralina-api.url}}/api/:path*
+    # A regra de rewrite será adicionada manualmente no painel da Render
 
 databases:
   - name: maralina-db
