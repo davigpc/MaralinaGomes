@@ -1,35 +1,51 @@
-# render.yaml - Versão Final e Corrigida
+# render.yaml - Versão corrigida e melhorada
 
-# Primeiro, definimos os bancos de dados. Esta secção está correta.
+# 1. Definição da Base de Dados
+# A Render criará este serviço primeiro.
 databases:
   - name: maralina-db
-    plan: free
+    plan: free # Plano gratuito da Render
     databaseName: maralinagomes_db
     user: admin
 
-# Em seguida, definimos os serviços da aplicação.
+# 2. Definição dos Serviços da Aplicação
 services:
-  # 1. O Backend Spring Boot (API)
+  # Serviço 1: Backend Spring Boot (API)
   - type: web
     name: maralina-api
     runtime: java
-    rootDir: ControleEstoque
     plan: free
-    buildCommand: "./mvnw package"
+    rootDir: ControleEstoque # Diretório raiz do backend
+    buildCommand: "./mvnw clean package -DskipTests" # Comando para construir o projeto (ignora testes para um build mais rápido)
     startCommand: "java -jar target/ControleEstoque-0.0.1-SNAPSHOT.jar"
+    healthCheckPath: /api/produtos # Endpoint para a Render verificar se a API está saudável
     envVars:
+      # Conecta à base de dados criada acima
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: maralina-db
           property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: maralina-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: maralina-db
+          property: password
+      # Permite que o frontend (que estará noutro domínio) faça requisições à API
+      - key: ALLOWED_ORIGIN
+        value: ${{services.maralina-loja.url}} # Pega no URL do frontend dinamicamente
 
-  # 2. O Frontend React (Site Estático) - Usando o tipo 'static' correto
+  # Serviço 2: Frontend React (Site Estático)
   - type: static
     name: maralina-loja
-    rootDir: maralinagomes-controle-front
     plan: free
+    rootDir: maralinagomes-controle-front # Diretório raiz do frontend
     buildCommand: "npm install && npm run build"
-    publishDir: dist
+    publishDir: dist # Pasta onde o build do React é gerado
+    # Regra de reescrita: Qualquer chamada para /api/... no frontend
+    # será redirecionada para o backend.
     rewrites:
-      - source: /api/*
-        destination: ${{ maralina-api.url }}/api/*
+      - source: /api/:path*
+        destination: ${{services.maralina-api.url}}/api/:path*
