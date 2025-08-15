@@ -12,28 +12,20 @@ services:
 # Em render.yaml, dentro do serviço maralina-api:
 
     envVars:
-      # Variáveis para construir o URL da base de dados
-      - key: DB_HOST
-        fromDatabase:
-          name: maralina-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: maralina-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: maralina-db
-          property: database
-      - key: DB_USER
+      # Constrói o URL JDBC completo usando as partes da base de dados.
+      # O !Sub permite juntar texto e variáveis.
+      - key: SPRING_DATASOURCE_URL
+        value: !Sub "jdbc:postgresql://${maralina-db.host}:${maralina-db.port}/${maralina-db.database}"
+      # Fornece o utilizador e a palavra-passe diretamente
+      - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: maralina-db
           property: user
-      - key: DB_PASS
+      - key: SPRING_DATASOURCE_PASSWORD
         fromDatabase:
           name: maralina-db
           property: password
-      # Variável para a configuração do CORS
+      # Variável para a configuração do CORS (mantém-se igual)
       - key: ALLOWED_ORIGIN
         fromService:
           type: web
