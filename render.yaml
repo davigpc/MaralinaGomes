@@ -1,4 +1,4 @@
-# render.yaml - Versão Final com a estrutura de 'rewrites' corrigida
+# render.yaml - Versão ajustada à documentação oficial
 
 services:
   # Serviço 1: Backend Spring Boot (API)
@@ -9,6 +9,7 @@ services:
     rootDir: ControleEstoque
     buildCommand: "./mvnw clean package -DskipTests"
     startCommand: "java -jar target/ControleEstoque-0.0.1-SNAPSHOT.jar"
+    healthCheckPath: /api/produtos
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
@@ -24,29 +25,26 @@ services:
           property: password
       - key: ALLOWED_ORIGIN
         fromService:
-          type: static_site
-          name: maralina-loja
-          property: url
+          type: web # O tipo do serviço de frontend
+          name: maralina-loja # O nome do serviço de frontend
+          property: url # A propriedade que queremos (o seu URL)
 
   # Serviço 2: Frontend React (Site Estático)
-  - type: static
+  - type: web                 # Conforme a documentação
     name: maralina-loja
+    runtime: static           # Conforme a documentação
     plan: free
     rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
-    publishDir: dist
-    # A secção de rewrites é movida para fora e para baixo
+    staticPublishPath: dist
+    # CORREÇÃO: A propriedade 'rewrites' está agora dentro da secção 'http'
+    http:
+      rewrites:
+        - source: /api/:path*
+          destination: ${{services.maralina-api.url}}/api/:path*
 
 databases:
   - name: maralina-db
     plan: free
     databaseName: maralinagomes_db
     user: admin
-
-# CORREÇÃO APLICADA AQUI:
-# A secção de redirects e rewrites é de nível superior
-# e não fica dentro de 'services'.
-redirects:
-  - source: /api/:path*
-    destination: ${{services.maralina-api.url}}/api/:path*
-    type: rewrite
