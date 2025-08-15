@@ -12,10 +12,11 @@ services:
 # Em render.yaml, dentro do serviço maralina-api:
 
     envVars:
-      # Constrói o URL JDBC completo usando as partes da base de dados.
-      # O !Sub permite juntar texto e variáveis.
+      # Constrói o URL JDBC completo e o define como a variável que o Spring Boot espera.
+      # O !Sub é uma função que junta texto com os valores da base de dados.
       - key: SPRING_DATASOURCE_URL
         value: !Sub "jdbc:postgresql://${maralina-db.host}:${maralina-db.port}/${maralina-db.database}"
+
       # Fornece o utilizador e a palavra-passe diretamente
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
@@ -25,7 +26,8 @@ services:
         fromDatabase:
           name: maralina-db
           property: password
-      # Variável para a configuração do CORS (mantém-se igual)
+
+      # Mantém a variável para a configuração do CORS
       - key: ALLOWED_ORIGIN
         fromService:
           type: web
