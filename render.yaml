@@ -9,19 +9,31 @@ services:
     rootDir: ControleEstoque
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/produtos
+# Em render.yaml, dentro do serviço maralina-api:
+
     envVars:
-      - key: SPRING_DATASOURCE_URL
+      # Variáveis para construir o URL da base de dados
+      - key: DB_HOST
         fromDatabase:
           name: maralina-db
-          property: connectionString
-      - key: SPRING_DATASOURCE_USERNAME
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: maralina-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: maralina-db
+          property: database
+      - key: DB_USER
         fromDatabase:
           name: maralina-db
           property: user
-      - key: SPRING_DATASOURCE_PASSWORD
+      - key: DB_PASS
         fromDatabase:
           name: maralina-db
           property: password
+      # Variável para a configuração do CORS
       - key: ALLOWED_ORIGIN
         fromService:
           type: web
