@@ -1,23 +1,19 @@
-# render.yaml - Versão com a correção final do 'plan'
-
 services:
   # Serviço 1: Backend Spring Boot (API) via Docker
   - type: web
     name: maralina-api
     runtime: docker
-    plan: free # ADICIONADO: Garante que o backend use o plano gratuito
+    plan: free
     rootDir: ControleEstoque
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/produtos
-# Em render.yaml, dentro do serviço maralina-api:
-
     envVars:
-      # Passa o URL original da base de dados (postgresql://...)
+      # URL original (postgresql://...) usada pelo ENTRYPOINT no Dockerfile
       - key: DATABASE_URL
         fromDatabase:
           name: maralina-db
           property: connectionString
-      # Passa o utilizador e a palavra-passe
+      # Usuário e senha enviados para o Spring Boot
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: maralina-db
@@ -26,7 +22,7 @@ services:
         fromDatabase:
           name: maralina-db
           property: password
-      # Mantém a variável para o CORS
+      # Variável para CORS
       - key: ALLOWED_ORIGIN
         fromService:
           type: web
@@ -37,8 +33,6 @@ services:
   - type: web
     name: maralina-loja
     runtime: static
-    # REMOVIDO: A linha 'plan: free' foi removida.
-    # A Render seleciona o plano gratuito automaticamente para sites estáticos.
     rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist
