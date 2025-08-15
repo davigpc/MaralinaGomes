@@ -72,6 +72,19 @@ public class MovimentoController {
             return ResponseEntity.ok().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/produto/{idProduto}")
+    public ResponseEntity<List<MovimentoEstoque>> listarMovimentosPorProduto(@PathVariable Long idProduto) {
+        // Verifica se o produto existe
+        if (!produtoRepository.existsById(idProduto)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Busca os movimentos ordenados pela data
+        List<MovimentoEstoque> movimentos = movimentoRepository.findByProdutoIdOrderByDataMovimentoDesc(idProduto);
+        return ResponseEntity.ok(movimentos);
+}
+
 }
 
 // Classe auxiliar
