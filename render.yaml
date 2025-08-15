@@ -1,14 +1,13 @@
-# render.yaml - Versão Simplificada e Válida
+# render.yaml - Versão final usando Docker para o backend
 
 services:
-  # Serviço 1: Backend Spring Boot (API)
+  # Serviço 1: Backend Spring Boot (API) via Docker
+  # Esta é a forma correta para implementar uma aplicação Java na Render.
   - type: web
     name: maralina-api
-    runtime: java
-    plan: free
+    runtime: docker # CORREÇÃO: Usar o runtime Docker
     rootDir: ControleEstoque
-    buildCommand: "./mvnw clean package -DskipTests"
-    startCommand: "java -jar target/ControleEstoque-0.0.1-SNAPSHOT.jar"
+    dockerfilePath: ./Dockerfile # Aponta para o seu Dockerfile existente
     healthCheckPath: /api/produtos
     envVars:
       - key: SPRING_DATASOURCE_URL
@@ -23,13 +22,15 @@ services:
         fromDatabase:
           name: maralina-db
           property: password
+      # CORREÇÃO: Pega no URL público do frontend usando a variável de ambiente da Render
       - key: ALLOWED_ORIGIN
         fromService:
-          type: web
+          type: web # O tipo do serviço frontend
           name: maralina-loja
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL # A chave correta para obter o URL
 
   # Serviço 2: Frontend React (Site Estático)
+  # A configuração de 'web' com 'runtime: static' é a correta.
   - type: web
     name: maralina-loja
     runtime: static
@@ -37,10 +38,22 @@ services:
     rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist
-    # A regra de rewrite será adicionada manualmente no painel da Render
+    # As regras de reescrita são movidas para o nível superior do ficheiro
+    # para evitar os erros de validação dentro do serviço.
+    routes:
+      - type: rewrite
+        source: /api/:path*
+        destination: /api/:path*
 
 databases:
   - name: maralina-db
     plan: free
     databaseName: maralinagomes_db
     user: admin
+
+# CORREÇÃO FINAL: As regras de proxy/rewrite são definidas aqui
+# e associadas ao serviço pelo 'destination'.
+previews:
+  - path: /api/*
+    destination:
+      name: maralina-api
