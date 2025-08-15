@@ -29,7 +29,7 @@ services:
           property: url
 
   # Serviço 2: Frontend React (Site Estático)
-  - type: static_site
+  - type: static
     name: maralina-loja
     plan: free
     rootDir: maralinagomes-controle-front
