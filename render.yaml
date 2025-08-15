@@ -1,10 +1,9 @@
-# render.yaml - Versão corrigida e melhorada
+# render.yaml - Versão com o tipo de serviço corrigido
 
 # 1. Definição da Base de Dados
-# A Render criará este serviço primeiro.
 databases:
   - name: maralina-db
-    plan: free # Plano gratuito da Render
+    plan: free
     databaseName: maralinagomes_db
     user: admin
 
@@ -15,12 +14,11 @@ services:
     name: maralina-api
     runtime: java
     plan: free
-    rootDir: ControleEstoque # Diretório raiz do backend
-    buildCommand: "./mvnw clean package -DskipTests" # Comando para construir o projeto (ignora testes para um build mais rápido)
+    rootDir: ControleEstoque
+    buildCommand: "./mvnw clean package -DskipTests"
     startCommand: "java -jar target/ControleEstoque-0.0.1-SNAPSHOT.jar"
-    healthCheckPath: /api/produtos # Endpoint para a Render verificar se a API está saudável
+    healthCheckPath: /api/produtos
     envVars:
-      # Conecta à base de dados criada acima
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: maralina-db
@@ -33,19 +31,16 @@ services:
         fromDatabase:
           name: maralina-db
           property: password
-      # Permite que o frontend (que estará noutro domínio) faça requisições à API
       - key: ALLOWED_ORIGIN
-        value: ${{services.maralina-loja.url}} # Pega no URL do frontend dinamicamente
+        value: ${{services.maralina-loja.url}}
 
   # Serviço 2: Frontend React (Site Estático)
-  - type: static
+  - type: static_site # CORREÇÃO: "static" foi alterado para "static_site"
     name: maralina-loja
     plan: free
-    rootDir: maralinagomes-controle-front # Diretório raiz do frontend
+    rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
-    publishDir: dist # Pasta onde o build do React é gerado
-    # Regra de reescrita: Qualquer chamada para /api/... no frontend
-    # será redirecionada para o backend.
+    publishDir: dist
     rewrites:
       - source: /api/:path*
         destination: ${{services.maralina-api.url}}/api/:path*
