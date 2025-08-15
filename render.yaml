@@ -1,15 +1,14 @@
-# render.yaml - Versão com o tipo de serviço corrigido
+# render.yaml - Versão Final e Corrigida com base na documentação oficial
 
-# 1. Definição da Base de Dados
 databases:
   - name: maralina-db
     plan: free
     databaseName: maralinagomes_db
     user: admin
 
-# 2. Definição dos Serviços da Aplicação
 services:
   # Serviço 1: Backend Spring Boot (API)
+  # Esta secção já estava correta.
   - type: web
     name: maralina-api
     runtime: java
@@ -31,16 +30,22 @@ services:
         fromDatabase:
           name: maralina-db
           property: password
+      # A variável ALLOWED_ORIGIN será o URL do nosso serviço de frontend abaixo
       - key: ALLOWED_ORIGIN
-        value: ${{services.maralina-loja.url}}
+        fromService:
+          type: web # O tipo do serviço de frontend
+          name: maralina-loja # O nome do serviço de frontend
+          property: url # A propriedade que queremos (o seu URL)
 
   # Serviço 2: Frontend React (Site Estático)
-  - type: static_site # CORREÇÃO: "static" foi alterado para "static_site"
+  # CORREÇÃO APLICADA AQUI:
+  - type: web                 # O tipo para um site estático é 'web'
     name: maralina-loja
+    runtime: static           # E o runtime é 'static'
     plan: free
     rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
-    publishDir: dist
+    staticPublishPath: dist   # A propriedade correta é 'staticPublishPath'
     rewrites:
       - source: /api/:path*
         destination: ${{services.maralina-api.url}}/api/:path*
