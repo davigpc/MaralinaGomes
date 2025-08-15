@@ -29,13 +29,17 @@ services:
           name: maralina-loja
           envVarKey: RENDER_EXTERNAL_URL
 
-  # Serviço 2: Frontend React (Site Estático)
+  # Serviço 2: Frontend React (Site Estático) com rewrite para o backend
   - type: web
     name: maralina-loja
     runtime: static
     rootDir: maralinagomes-controle-front
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://maralina-api.onrender.com/api/*
 
 databases:
   - name: maralina-db
